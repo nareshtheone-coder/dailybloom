@@ -332,12 +332,26 @@ export const SIMPLE_WORDS = [
   { word: 'SUN', emoji: '☀️', image: 'sun' },
   { word: 'RUN', emoji: '🏃', image: 'run' },
   { word: 'SIT', emoji: '🪑', image: 'sit' },
+  { word: 'PIG', emoji: '🐷', image: 'pig' },
+  { word: 'BOX', emoji: '📦', image: 'box' },
+  { word: 'CUP', emoji: '☕', image: 'cup' },
+  { word: 'MAP', emoji: '🗺️', image: 'map' },
+  { word: 'PEN', emoji: '🖊️', image: 'pen' },
+  { word: 'RED', emoji: '🔴', image: 'red' },
+  { word: 'BIG', emoji: '🐘', image: 'big' },
+  { word: 'HOT', emoji: '🔥', image: 'hot' },
+  { word: 'WET', emoji: '💧', image: 'wet' },
+  { word: 'JAM', emoji: '🍓', image: 'jam' },
+  { word: 'FUN', emoji: '🎉', image: 'fun' },
+  { word: 'ZOO', emoji: '🦁', image: 'zoo' },
 ]
 
 // Sight words for 5-6 year olds
 export const SIGHT_WORDS = [
   'the', 'a', 'and', 'is', 'it', 'in', 'to', 'of', 'I', 'you',
-  'we', 'he', 'she', 'that', 'this', 'with', 'for', 'as', 'at', 'be'
+  'we', 'he', 'she', 'that', 'this', 'with', 'for', 'as', 'at', 'be',
+  'go', 'me', 'my', 'no', 'so', 'up', 'on', 'do', 'an', 'am',
+  'or', 'by', 'if', 'all', 'are', 'was', 'has', 'had', 'did', 'get',
 ]
 
 // Simple sentences for 5-6 year olds
@@ -346,6 +360,12 @@ export const SIMPLE_SENTENCES = [
   { sentence: 'I like the sun', words: ['I', 'like', 'the', 'sun'] },
   { sentence: 'The dog can run', words: ['The', 'dog', 'can', 'run'] },
   { sentence: 'I see a bird', words: ['I', 'see', 'a', 'bird'] },
+  { sentence: 'We can play', words: ['We', 'can', 'play'] },
+  { sentence: 'The sun is hot', words: ['The', 'sun', 'is', 'hot'] },
+  { sentence: 'I have a cat', words: ['I', 'have', 'a', 'cat'] },
+  { sentence: 'She likes dogs', words: ['She', 'likes', 'dogs'] },
+  { sentence: 'It is fun', words: ['It', 'is', 'fun'] },
+  { sentence: 'We go up', words: ['We', 'go', 'up'] },
 ]
 
 // ==================== NEW GAME DATA ====================
@@ -399,6 +419,14 @@ export const PUZZLE_WORDS = [
   { word: 'BIRD', letters: ['B', 'I', 'R', 'D'], emoji: '🦅', image: 'bird' },
   { word: 'FISH', letters: ['F', 'I', 'S', 'H'], emoji: '🐠', image: 'fish' },
   { word: 'TREE', letters: ['T', 'R', 'E', 'E'], emoji: '🌳', image: 'tree' },
+  { word: 'MOON', letters: ['M', 'O', 'O', 'N'], emoji: '🌙', image: 'moon' },
+  { word: 'STAR', letters: ['S', 'T', 'A', 'R'], emoji: '⭐', image: 'star' },
+  { word: 'BOOK', letters: ['B', 'O', 'O', 'K'], emoji: '📚', image: 'book' },
+  { word: 'CAKE', letters: ['C', 'A', 'K', 'E'], emoji: '🎂', image: 'cake' },
+  { word: 'DUCK', letters: ['D', 'U', 'C', 'K'], emoji: '🦆', image: 'duck' },
+  { word: 'FROG', letters: ['F', 'R', 'O', 'G'], emoji: '🐸', image: 'frog' },
+  { word: 'LION', letters: ['L', 'I', 'O', 'N'], emoji: '🦁', image: 'lion' },
+  { word: 'BEAR', letters: ['B', 'E', 'A', 'R'], emoji: '🐻', image: 'bear' },
 ]
 
 // Story Puzzle - Sentences to arrange for 5-6 year olds
@@ -423,6 +451,36 @@ export const STORY_PUZZLES = [
     shuffled: ['bird', 'a', 'sees', 'She'],
     hint: 'She ___ ___ ___',
   },
+  {
+    correct: ['We', 'go', 'to', 'school'],
+    shuffled: ['school', 'We', 'to', 'go'],
+    hint: 'We ___ ___ ___',
+  },
+  {
+    correct: ['The', 'bird', 'can', 'fly'],
+    shuffled: ['fly', 'The', 'bird', 'can'],
+    hint: 'The ___ ___ ___',
+  },
+  {
+    correct: ['I', 'see', 'the', 'moon'],
+    shuffled: ['moon', 'I', 'the', 'see'],
+    hint: 'I ___ ___ ___',
+  },
+  {
+    correct: ['He', 'has', 'a', 'book'],
+    shuffled: ['book', 'He', 'has', 'a'],
+    hint: 'He ___ ___ ___',
+  },
+  {
+    correct: ['They', 'like', 'to', 'play'],
+    shuffled: ['play', 'They', 'to', 'like'],
+    hint: 'They ___ ___ ___',
+  },
+  {
+    correct: ['She', 'is', 'my', 'friend'],
+    shuffled: ['friend', 'She', 'my', 'is'],
+    hint: 'She ___ ___ ___',
+  },
 ]
 
 // Racing Data - Letter sequences for races
@@ -430,7 +488,7 @@ export const RACING_LETTERS_4_5 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 
 export const RACING_NUMBERS_5_6 = Array.from({ length: 20 }, (_, i) => i + 1)
 
 // Falling objects for catch games
-export const FALLING_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+export const FALLING_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
 
 // Catch the Bubbles - Bubble types
 export const BUBBLE_TYPES = {
@@ -467,4 +525,47 @@ export const EARLY_PUZZLES = [
   { letter: 'A', emoji: '🍎', name: 'Apple' },
   { letter: 'B', emoji: '🎈', name: 'Balloon' },
   { letter: 'C', emoji: '🐱', name: 'Cat' },
+  { letter: 'D', emoji: '🦆', name: 'Duck' },
+  { letter: 'E', emoji: '🥚', name: 'Egg' },
+  { letter: 'F', emoji: '🐠', name: 'Fish' },
+]
+
+// Rhyme Time - Rhyming word pairs for 4-5 year olds
+export const RHYMING_PAIRS = [
+  { word: 'cat', rhyme: 'hat', emoji: '🐱' },
+  { word: 'dog', rhyme: 'log', emoji: '🐕' },
+  { word: 'sun', rhyme: 'fun', emoji: '☀️' },
+  { word: 'bee', rhyme: 'tree', emoji: '🐝' },
+  { word: 'fish', rhyme: 'dish', emoji: '🐠' },
+  { word: 'star', rhyme: 'car', emoji: '⭐' },
+  { word: 'cake', rhyme: 'snake', emoji: '🎂' },
+  { word: 'bear', rhyme: 'chair', emoji: '🐻' },
+  { word: 'duck', rhyme: 'truck', emoji: '🦆' },
+  { word: 'moon', rhyme: 'spoon', emoji: '🌙' },
+  { word: 'pig', rhyme: 'wig', emoji: '🐷' },
+  { word: 'fox', rhyme: 'box', emoji: '🦊' },
+]
+
+// Animal Sounds - Animals with sounds for 3-4 year olds
+export const ANIMAL_SOUNDS = [
+  { name: 'Dog', emoji: '🐕', sound: 'Woof' },
+  { name: 'Cat', emoji: '🐱', sound: 'Meow' },
+  { name: 'Cow', emoji: '🐄', sound: 'Moo' },
+  { name: 'Duck', emoji: '🦆', sound: 'Quack' },
+  { name: 'Pig', emoji: '🐷', sound: 'Oink' },
+  { name: 'Sheep', emoji: '🐑', sound: 'Baa' },
+  { name: 'Lion', emoji: '🦁', sound: 'Roar' },
+  { name: 'Frog', emoji: '🐸', sound: 'Ribbit' },
+]
+
+// Pattern Match - Color and shape sequences with missing index for 3-4 year olds
+export const PATTERN_SEQUENCES = [
+  { pattern: ['🔴', '🔵', '🔴', '🔵'], missing: 2, name: 'Colors' },
+  { pattern: ['🟡', '🟢', '🟡', '🟢'], missing: 2, name: 'Colors' },
+  { pattern: ['⭐', '❤️', '⭐', '❤️'], missing: 2, name: 'Shapes' },
+  { pattern: ['🔺', '🔵', '🔺', '🔵'], missing: 2, name: 'Shapes' },
+  { pattern: ['🔴', '🔴', '🟢', '🟢'], missing: 2, name: 'Colors' },
+  { pattern: ['🟦', '🟨', '🟦', '🟨'], missing: 2, name: 'Colors' },
+  { pattern: ['🟣', '🟠', '🟣', '🟠'], missing: 2, name: 'Colors' },
+  { pattern: ['⬛', '⬜', '⬛', '⬜'], missing: 2, name: 'Shapes' },
 ]
