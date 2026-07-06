@@ -59,6 +59,12 @@ export default function GameMenu({ onSelectGame, onChangeAge, ageGroup }: GameMe
       <div className="mt-8 md:mt-12 text-center text-white/90 text-xs md:text-sm max-w-2xl px-4">
         <p className="font-semibold mb-2">Learning Goals:</p>
         <p className="text-white/80">{games.map(g => g.learningGoal).join(' • ')}</p>
+        <p className="mt-4 text-white/70">
+          <a href="/discover.html" className="underline hover:text-white">
+            About DailyBloom
+          </a>
+          {' '}(guide for parents &amp; teachers)
+        </p>
       </div>
     </div>
   )

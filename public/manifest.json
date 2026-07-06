@@ -1,13 +1,16 @@
 {
-  "name": "DailyBloom - Games for Kids 2-5",
+  "name": "DailyBloom — Free Learning Games for Kids 2–6",
   "short_name": "DailyBloom",
-  "description": "Colorful, interactive games designed for toddlers and preschoolers aged 2-5 years",
+  "description": "31 free educational games for ages 2–6. ABCs, phonics, maths/math, colours/colors, sight words. Install on phone, tablet & PC. Works offline. For US, UK & India families.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#FF6B9D",
+  "categories": ["education", "games", "kids"],
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -46,5 +49,6 @@
       "purpose": "any"
     }
   ],
-  "categories": ["education", "games"]
+  "related_applications": [],
+  "prefer_related_applications": false
 }
