@@ -29,7 +29,7 @@ export default function GameMenu({ onSelectGame, onChangeAge, ageGroup }: GameMe
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-br from-purple-300 via-pink-300 to-blue-300">
+    <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-8 pb-20 bg-gradient-to-br from-purple-300 via-pink-300 to-blue-300 overflow-y-auto">
       <div className="text-center mb-8 md:mb-12">
         <div className="text-6xl md:text-7xl mb-2">{getEmoji(ageGroup)}</div>
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">🌸 DailyBloom</h1>
