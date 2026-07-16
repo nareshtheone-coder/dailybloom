@@ -1,24 +1,38 @@
 import { useState, useEffect } from 'react'
 import { celebrate } from '../../utils/celebrations'
-import { SIMPLE_SENTENCES } from '../../data/gamesLibrary'
+import { SENTENCE_STAGES } from '../../data/contentStages'
+import { useStagedGame } from '../../hooks/useStagedGame'
+import GameStageHeader from '../GameStageHeader'
+import StageCompleteOverlay from '../StageCompleteOverlay'
 
 interface SentenceBuilderProps {
   onBack: () => void
 }
 
+const TOTAL_STAGES = SENTENCE_STAGES.length
+
 export default function SentenceBuilder({ onBack }: SentenceBuilderProps) {
+  const { stageIndex, stageComplete, allComplete, finishStage, nextStage, replayStage } =
+    useStagedGame('simple-sentences', TOTAL_STAGES)
+
+  const stageSentences = SENTENCE_STAGES[stageIndex]
   const [sentenceIndex, setSentenceIndex] = useState(0)
   const [selected, setSelected] = useState<string[]>([])
   const [shuffled, setShuffled] = useState<string[]>([])
   const [score, setScore] = useState(0)
-  const [completed, setCompleted] = useState(false)
 
-  const current = SIMPLE_SENTENCES[sentenceIndex]
+  const current = stageSentences[sentenceIndex]
+
+  useEffect(() => {
+    setSentenceIndex(0)
+    setScore(0)
+    setSelected([])
+  }, [stageIndex])
 
   useEffect(() => {
     setShuffled([...current.words].sort(() => Math.random() - 0.5))
     setSelected([])
-  }, [sentenceIndex, current.words])
+  }, [stageIndex, sentenceIndex, current.words])
 
   const handleWordSelect = (word: string) => {
     const newSelected = [...selected, word]
@@ -30,12 +44,12 @@ export default function SentenceBuilder({ onBack }: SentenceBuilderProps) {
         setScore((s) => s + 1)
 
         setTimeout(() => {
-          if (sentenceIndex < SIMPLE_SENTENCES.length - 1) {
+          if (sentenceIndex < stageSentences.length - 1) {
             setSentenceIndex(sentenceIndex + 1)
             setSelected([])
           } else {
             celebrate('full')
-            setCompleted(true)
+            finishStage()
           }
         }, 1000)
       }
@@ -52,21 +66,23 @@ export default function SentenceBuilder({ onBack }: SentenceBuilderProps) {
     return priorSame < selectedSame
   }
 
+  const handleReplay = () => {
+    replayStage()
+    setSentenceIndex(0)
+    setScore(0)
+    setSelected([])
+  }
+
   return (
     <div className="w-full h-full bg-gradient-to-br from-emerald-300 via-green-300 to-teal-300 flex flex-col overflow-hidden">
-      <div className="flex justify-between items-center p-4 md:p-6 bg-white/20 backdrop-blur-sm">
-        <button
-          onClick={onBack}
-          className="text-4xl md:text-5xl bg-white/80 rounded-full p-2 md:p-3 hover:bg-white transition-all active:scale-95"
-        >
-          ←
-        </button>
-        <div className="text-center">
-          <div className="text-2xl md:text-4xl font-bold text-white">📖 Sentence Builder</div>
-          <div className="text-sm md:text-lg text-white/90">Score: {score}</div>
-        </div>
-        <div className="w-12 md:w-16"></div>
-      </div>
+      <GameStageHeader
+        title="📖 Sentence Builder"
+        stageIndex={stageIndex}
+        totalStages={TOTAL_STAGES}
+        score={score}
+        extra={`${sentenceIndex + 1}/${stageSentences.length}`}
+        onBack={onBack}
+      />
 
       <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 gap-6">
         <div className="bg-white/90 px-6 py-4 rounded-2xl text-center w-full max-w-2xl">
@@ -112,18 +128,17 @@ export default function SentenceBuilder({ onBack }: SentenceBuilderProps) {
             ↶ Undo
           </button>
         )}
-
-        {completed && (
-          <div className="text-center animate-bounce">
-            <div className="text-5xl mb-2">🎉</div>
-            <p className="text-white text-2xl font-bold drop-shadow">Sentence Master!</p>
-          </div>
-        )}
-
-        <div className="text-white text-lg md:text-xl font-bold">
-          {sentenceIndex + 1} / {SIMPLE_SENTENCES.length}
-        </div>
       </div>
+
+      <StageCompleteOverlay
+        show={stageComplete}
+        stageIndex={stageIndex}
+        totalStages={TOTAL_STAGES}
+        allDone={allComplete}
+        onNext={() => nextStage()}
+        onReplay={handleReplay}
+        onBack={onBack}
+      />
     </div>
   )
 }

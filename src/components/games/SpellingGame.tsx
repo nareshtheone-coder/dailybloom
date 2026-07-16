@@ -1,31 +1,58 @@
 import { useState, useEffect } from 'react'
-import { SIMPLE_WORDS } from '../../data/gamesLibrary'
+import { WORD_STAGES_3, WORD_STAGES_4 } from '../../data/contentStages'
+import { useStagedGame } from '../../hooks/useStagedGame'
+import GameStageHeader from '../GameStageHeader'
+import StageCompleteOverlay from '../StageCompleteOverlay'
 import { celebrate, addCelebrationStyles } from '../../utils/celebrations'
 
 interface SpellingGameProps {
   onBack: () => void
 }
 
+const SPELLING_STAGES = [...WORD_STAGES_3, ...WORD_STAGES_4]
+const TOTAL_STAGES = SPELLING_STAGES.length
+
+type StageWord = (typeof SPELLING_STAGES)[number][number]
+
+function getWordLetters(word: StageWord): string[] {
+  if ('letters' in word && Array.isArray(word.letters)) {
+    return [...word.letters]
+  }
+  return word.word.split('')
+}
+
 export default function SpellingGame({ onBack }: SpellingGameProps) {
+  const { stageIndex, stageComplete, allComplete, finishStage, nextStage, replayStage } =
+    useStagedGame('spelling-words', TOTAL_STAGES)
+
+  const stageWords = SPELLING_STAGES[stageIndex]
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedLetters, setSelectedLetters] = useState<string[]>([])
   const [score, setScore] = useState(0)
   const [shuffledLetters, setShuffledLetters] = useState<string[]>([])
-  const [completed, setCompleted] = useState(false)
 
-  useEffect(() => {
-    addCelebrationStyles()
-    shuffleLetters()
-  }, [currentIndex])
-
-  const shuffleLetters = () => {
-    const word = SIMPLE_WORDS[currentIndex].word
-    const letters = word.split('').sort(() => Math.random() - 0.5)
-    setShuffledLetters(letters)
+  const resetWord = () => {
+    const letters = getWordLetters(stageWords[currentIndex])
+    setShuffledLetters([...letters].sort(() => Math.random() - 0.5))
     setSelectedLetters([])
   }
 
-  const current = SIMPLE_WORDS[currentIndex]
+  useEffect(() => {
+    addCelebrationStyles()
+  }, [])
+
+  useEffect(() => {
+    setCurrentIndex(0)
+    setScore(0)
+    setSelectedLetters([])
+  }, [stageIndex])
+
+  useEffect(() => {
+    resetWord()
+  }, [stageIndex, currentIndex])
+
+  const current = stageWords[currentIndex]
+  const wordLetters = getWordLetters(current)
 
   const handleSelectLetter = (letter: string) => {
     const newSelected = [...selectedLetters, letter]
@@ -36,11 +63,11 @@ export default function SpellingGame({ onBack }: SpellingGameProps) {
         celebrate('medium')
         setScore((s) => s + 1)
         setTimeout(() => {
-          if (currentIndex < SIMPLE_WORDS.length - 1) {
+          if (currentIndex < stageWords.length - 1) {
             setCurrentIndex(currentIndex + 1)
           } else {
             celebrate('full')
-            setCompleted(true)
+            finishStage()
           }
         }, 1500)
       }
@@ -51,21 +78,23 @@ export default function SpellingGame({ onBack }: SpellingGameProps) {
     setSelectedLetters(selectedLetters.slice(0, -1))
   }
 
+  const handleReplay = () => {
+    replayStage()
+    setCurrentIndex(0)
+    setScore(0)
+    setSelectedLetters([])
+  }
+
   return (
     <div className="w-full h-full bg-gradient-to-br from-lime-300 via-green-300 to-emerald-300 flex flex-col overflow-hidden">
-      <div className="flex justify-between items-center p-4 md:p-6 bg-white/20 backdrop-blur-sm">
-        <button
-          onClick={onBack}
-          className="text-4xl md:text-5xl bg-white/80 rounded-full p-2 md:p-3 hover:bg-white transition-all active:scale-95"
-        >
-          ←
-        </button>
-        <div className="text-center">
-          <div className="text-2xl md:text-4xl font-bold text-white">✍️ Spell It</div>
-          <div className="text-sm md:text-lg text-white/90">Score: {score}</div>
-        </div>
-        <div className="w-12 md:w-16"></div>
-      </div>
+      <GameStageHeader
+        title="✍️ Spell It"
+        stageIndex={stageIndex}
+        totalStages={TOTAL_STAGES}
+        score={score}
+        extra={`${currentIndex + 1}/${stageWords.length}`}
+        onBack={onBack}
+      />
 
       <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 gap-6 md:gap-8">
         <div className="text-8xl md:text-9xl">{current.emoji}</div>
@@ -85,7 +114,7 @@ export default function SpellingGame({ onBack }: SpellingGameProps) {
           {selectedLetters.join('') || 'Spell the word!'}
         </div>
 
-        <div className="grid grid-cols-3 gap-3 md:gap-4 max-w-xl">
+        <div className={`grid gap-3 md:gap-4 max-w-xl ${wordLetters.length === 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
           {shuffledLetters.map((letter, idx) => {
             const isUsed = idx < selectedLetters.length
             return (
@@ -111,18 +140,17 @@ export default function SpellingGame({ onBack }: SpellingGameProps) {
             ↶ Undo
           </button>
         )}
-
-        {completed && (
-          <div className="text-center animate-bounce">
-            <div className="text-5xl mb-2">🎉</div>
-            <p className="text-white text-2xl font-bold drop-shadow">Spelling Star!</p>
-          </div>
-        )}
-
-        <div className="text-white text-lg md:text-xl font-bold">
-          {currentIndex + 1} / {SIMPLE_WORDS.length}
-        </div>
       </div>
+
+      <StageCompleteOverlay
+        show={stageComplete}
+        stageIndex={stageIndex}
+        totalStages={TOTAL_STAGES}
+        allDone={allComplete}
+        onNext={() => nextStage()}
+        onReplay={handleReplay}
+        onBack={onBack}
+      />
     </div>
   )
 }

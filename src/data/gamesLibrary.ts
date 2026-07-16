@@ -46,7 +46,7 @@ export const GAMES_LIBRARY = {
       name: 'Letter Painter',
       emoji: '🎨',
       color: 'from-rose-400 to-pink-500',
-      description: 'Paint letters with colors',
+      description: 'Paint letters A–Z in 6 stages',
       learningGoal: 'Letter recognition + color learning',
     },
     {
