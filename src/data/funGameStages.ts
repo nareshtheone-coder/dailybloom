@@ -41,7 +41,7 @@ export function funStageLabel(stage: number, noun: string): string {
 export function getBubblePopStage(stage: number) {
   return {
     label: funStageLabel(stage, 'Bubbles'),
-    target: lerpInt(3, 25, stage),
+    target: lerpInt(2, 25, stage),
     spawnMs: lerpInt(900, 220, stage),
     speed: lerp(0.6, 3.2, stage),
     maxOnScreen: lerpInt(4, 22, stage),
@@ -77,11 +77,11 @@ export function getSillyFacesStage(stage: number) {
 export function getWhackAMoleStage(stage: number) {
   return {
     label: funStageLabel(stage, 'Moles'),
-    durationSec: lerpInt(50, 18, stage),
-    popIntervalMs: lerpInt(1300, 380, stage),
-    visibleMs: lerpInt(1000, 320, stage),
+    durationSec: lerpInt(55, 18, stage),
+    popIntervalMs: lerpInt(1500, 380, stage),
+    visibleMs: lerpInt(1200, 320, stage),
     holes: lerpInt(3, 6, stage),
-    targetScore: lerpInt(2, 22, stage),
+    targetScore: lerpInt(1, 22, stage),
   }
 }
 
@@ -123,7 +123,7 @@ export function getSimonSaysStage(stage: number) {
   return {
     label: funStageLabel(stage, 'Simon'),
     sequenceLength: lerpInt(2, 11, stage),
-    flashMs: lerpInt(550, 220, stage),
+    flashMs: lerpInt(700, 220, stage),
   }
 }
 
