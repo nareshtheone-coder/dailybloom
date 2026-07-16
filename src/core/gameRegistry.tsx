@@ -79,6 +79,30 @@ export const GAME_REGISTRY: Record<string, GameEntry> = {
   'story-puzzle': { component: lazyGame(() => import('../components/games/StoryPuzzle')) },
   'sight-word-race': { component: lazyGame(() => import('../components/games/SightWordRace')) },
   'pattern-rush': { component: lazyGame(() => import('../components/games/PatternRush')) },
+
+  // Fun zone — ages 2-3
+  'catch-the-bubbles': { component: lazyGame(() => import('../components/games/CatchTheBubbles')) },
+  'peek-a-boo': { component: lazyGame(() => import('../components/games/fun/PeekABoo')) },
+  'balloon-float': { component: lazyGame(() => import('../components/games/fun/BalloonFloat')) },
+  'silly-faces': { component: lazyGame(() => import('../components/games/fun/SillyFaces')) },
+
+  // Fun zone — ages 3-4
+  'whack-a-mole': { component: lazyGame(() => import('../components/games/fun/WhackAMole')) },
+  'treasure-hunt': { component: lazyGame(() => import('../components/games/fun/TreasureHunt')) },
+  'dance-party': { component: lazyGame(() => import('../components/games/fun/DanceParty')) },
+  'star-catcher': { component: lazyGame(() => import('../components/games/fun/StarCatcher')) },
+
+  // Fun zone — ages 4-5
+  'confetti-pop': { component: lazyGame(() => import('../components/games/fun/ConfettiPop')) },
+  'simon-says': { component: lazyGame(() => import('../components/games/fun/SimonSays')) },
+  'rocket-launch': { component: lazyGame(() => import('../components/games/fun/RocketLaunch')) },
+  'pet-party': { component: lazyGame(() => import('../components/games/fun/PetParty')) },
+
+  // Fun zone — ages 5-6
+  'reaction-dash': { component: lazyGame(() => import('../components/games/fun/ReactionDash')) },
+  'brick-breaker': { component: lazyGame(() => import('../components/games/fun/BrickBreaker')) },
+  'speed-tap': { component: lazyGame(() => import('../components/games/fun/SpeedTap')) },
+  'emoji-maze': { component: lazyGame(() => import('../components/games/fun/EmojiMaze')) },
 }
 
 export function renderGame(
