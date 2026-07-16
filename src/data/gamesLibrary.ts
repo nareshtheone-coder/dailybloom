@@ -46,7 +46,7 @@ export const GAMES_LIBRARY = {
       name: 'Letter Painter',
       emoji: '🎨',
       color: 'from-rose-400 to-pink-500',
-      description: 'Paint letters with colors',
+      description: 'Paint letters A–Z in 6 stages',
       learningGoal: 'Letter recognition + color learning',
     },
     {
@@ -54,7 +54,7 @@ export const GAMES_LIBRARY = {
       name: 'Letter Pop',
       emoji: '💥',
       color: 'from-orange-400 to-red-500',
-      description: 'Pop letter bubbles (A-E)',
+      description: 'Pop letter bubbles A–Z in 6 stages',
       learningGoal: 'Letter identification + hand-eye coordination',
     },
     {
@@ -62,8 +62,45 @@ export const GAMES_LIBRARY = {
       name: '🍎 A is for Apple',
       emoji: '🧩',
       color: 'from-red-400 to-pink-500',
-      description: 'Simple 2-piece puzzle A↔🍎',
+      description: 'Match letters A–Z to objects (6 stages)',
       learningGoal: 'Letter-object association + problem solving',
+    },
+    // Fun zone — just for play!
+    {
+      id: 'catch-the-bubbles',
+      name: 'Bubble Pop',
+      emoji: '🫧',
+      color: 'from-sky-400 to-cyan-500',
+      description: 'Pop floating bubbles',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'peek-a-boo',
+      name: 'Peek-a-Boo',
+      emoji: '👀',
+      color: 'from-indigo-400 to-purple-500',
+      description: 'Find hidden friends',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'balloon-float',
+      name: 'Balloon Pop',
+      emoji: '🎈',
+      color: 'from-rose-400 to-orange-400',
+      description: 'Pop rising balloons',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'silly-faces',
+      name: 'Silly Faces',
+      emoji: '🤪',
+      color: 'from-fuchsia-400 to-pink-500',
+      description: 'Tap for silly surprises',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
     },
   ],
 
@@ -127,9 +164,45 @@ export const GAMES_LIBRARY = {
       description: 'Match emoji cards',
       learningGoal: 'Visual discrimination + memory',
     },
+    {
+      id: 'whack-a-mole',
+      name: 'Whack-a-Mole',
+      emoji: '🔨',
+      color: 'from-lime-500 to-green-600',
+      description: 'Tap the silly moles',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'treasure-hunt',
+      name: 'Treasure Hunt',
+      emoji: '🗺️',
+      color: 'from-amber-400 to-yellow-500',
+      description: 'Find hidden treasure',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'dance-party',
+      name: 'Dance Party',
+      emoji: '💃',
+      color: 'from-violet-500 to-pink-600',
+      description: 'Tap to the beat',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'star-catcher',
+      name: 'Star Catcher',
+      emoji: '⭐',
+      color: 'from-indigo-500 to-purple-600',
+      description: 'Catch falling stars',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
   ],
 
-  // AGE 4-5: Alphabet, Words, Racing & Puzzles (5 + 3 new games)
+  // AGE 4-5: Alphabet, Words, Racing & Puzzles (8 + 4 fun games)
   age_4_5: [
     // Original games
     {
@@ -137,7 +210,7 @@ export const GAMES_LIBRARY = {
       name: 'ABC Quest',
       emoji: '🔤',
       color: 'from-cyan-400 to-cyan-500',
-      description: 'Learn alphabet with sounds (A-M)',
+      description: 'Learn alphabet A–Z in 6 stages',
       learningGoal: 'Alphabet & phonetics',
     },
     {
@@ -197,9 +270,45 @@ export const GAMES_LIBRARY = {
       description: 'Drag letters to spell words',
       learningGoal: 'Spelling + letter arrangement',
     },
+    {
+      id: 'confetti-pop',
+      name: 'Confetti Cannon',
+      emoji: '🎊',
+      color: 'from-pink-500 to-red-500',
+      description: 'Blast confetti everywhere',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'simon-says',
+      name: 'Simon Says',
+      emoji: '🎮',
+      color: 'from-cyan-500 to-blue-600',
+      description: 'Repeat the color pattern',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'rocket-launch',
+      name: 'Rocket Launch',
+      emoji: '🚀',
+      color: 'from-slate-600 to-indigo-800',
+      description: 'Fuel up and blast off',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'pet-party',
+      name: 'Pet Party',
+      emoji: '🐾',
+      color: 'from-teal-400 to-emerald-500',
+      description: 'Feed cute pets',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
   ],
 
-  // AGE 5-6: Advanced Reading, Numbers & Competition (5 + 4 new games)
+  // AGE 5-6: Advanced Reading, Numbers & Competition (9 + 4 fun games)
   age_5_6: [
     // Original games
     {
@@ -215,7 +324,7 @@ export const GAMES_LIBRARY = {
       name: 'Spell It',
       emoji: '✍️',
       color: 'from-lime-400 to-lime-500',
-      description: 'Spell simple 3-letter words',
+      description: '30 words in 3 stages, then 24 four-letter words',
       learningGoal: 'Spelling basics',
     },
     {
@@ -275,6 +384,42 @@ export const GAMES_LIBRARY = {
       description: 'Complete patterns quickly',
       learningGoal: 'Pattern recognition + fast thinking',
     },
+    {
+      id: 'reaction-dash',
+      name: 'Reaction Dash',
+      emoji: '🚦',
+      color: 'from-gray-600 to-gray-800',
+      description: 'Tap when green',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'brick-breaker',
+      name: 'Brick Breaker',
+      emoji: '🧱',
+      color: 'from-slate-500 to-indigo-700',
+      description: 'Bounce and break bricks',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'speed-tap',
+      name: 'Speed Tap',
+      emoji: '⚡',
+      color: 'from-yellow-500 to-orange-500',
+      description: 'Tap as fast as you can',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
+    {
+      id: 'emoji-maze',
+      name: 'Emoji Maze',
+      emoji: '🗺️',
+      color: 'from-emerald-500 to-teal-600',
+      description: 'Guide bunny to treasure',
+      learningGoal: 'Just for fun!',
+      gameType: 'fun',
+    },
   ],
 }
 
@@ -332,12 +477,26 @@ export const SIMPLE_WORDS = [
   { word: 'SUN', emoji: '☀️', image: 'sun' },
   { word: 'RUN', emoji: '🏃', image: 'run' },
   { word: 'SIT', emoji: '🪑', image: 'sit' },
+  { word: 'PIG', emoji: '🐷', image: 'pig' },
+  { word: 'BOX', emoji: '📦', image: 'box' },
+  { word: 'CUP', emoji: '☕', image: 'cup' },
+  { word: 'MAP', emoji: '🗺️', image: 'map' },
+  { word: 'PEN', emoji: '🖊️', image: 'pen' },
+  { word: 'RED', emoji: '🔴', image: 'red' },
+  { word: 'BIG', emoji: '🐘', image: 'big' },
+  { word: 'HOT', emoji: '🔥', image: 'hot' },
+  { word: 'WET', emoji: '💧', image: 'wet' },
+  { word: 'JAM', emoji: '🍓', image: 'jam' },
+  { word: 'FUN', emoji: '🎉', image: 'fun' },
+  { word: 'ZOO', emoji: '🦁', image: 'zoo' },
 ]
 
 // Sight words for 5-6 year olds
 export const SIGHT_WORDS = [
   'the', 'a', 'and', 'is', 'it', 'in', 'to', 'of', 'I', 'you',
-  'we', 'he', 'she', 'that', 'this', 'with', 'for', 'as', 'at', 'be'
+  'we', 'he', 'she', 'that', 'this', 'with', 'for', 'as', 'at', 'be',
+  'go', 'me', 'my', 'no', 'so', 'up', 'on', 'do', 'an', 'am',
+  'or', 'by', 'if', 'all', 'are', 'was', 'has', 'had', 'did', 'get',
 ]
 
 // Simple sentences for 5-6 year olds
@@ -346,6 +505,12 @@ export const SIMPLE_SENTENCES = [
   { sentence: 'I like the sun', words: ['I', 'like', 'the', 'sun'] },
   { sentence: 'The dog can run', words: ['The', 'dog', 'can', 'run'] },
   { sentence: 'I see a bird', words: ['I', 'see', 'a', 'bird'] },
+  { sentence: 'We can play', words: ['We', 'can', 'play'] },
+  { sentence: 'The sun is hot', words: ['The', 'sun', 'is', 'hot'] },
+  { sentence: 'I have a cat', words: ['I', 'have', 'a', 'cat'] },
+  { sentence: 'She likes dogs', words: ['She', 'likes', 'dogs'] },
+  { sentence: 'It is fun', words: ['It', 'is', 'fun'] },
+  { sentence: 'We go up', words: ['We', 'go', 'up'] },
 ]
 
 // ==================== NEW GAME DATA ====================
@@ -399,6 +564,14 @@ export const PUZZLE_WORDS = [
   { word: 'BIRD', letters: ['B', 'I', 'R', 'D'], emoji: '🦅', image: 'bird' },
   { word: 'FISH', letters: ['F', 'I', 'S', 'H'], emoji: '🐠', image: 'fish' },
   { word: 'TREE', letters: ['T', 'R', 'E', 'E'], emoji: '🌳', image: 'tree' },
+  { word: 'MOON', letters: ['M', 'O', 'O', 'N'], emoji: '🌙', image: 'moon' },
+  { word: 'STAR', letters: ['S', 'T', 'A', 'R'], emoji: '⭐', image: 'star' },
+  { word: 'BOOK', letters: ['B', 'O', 'O', 'K'], emoji: '📚', image: 'book' },
+  { word: 'CAKE', letters: ['C', 'A', 'K', 'E'], emoji: '🎂', image: 'cake' },
+  { word: 'DUCK', letters: ['D', 'U', 'C', 'K'], emoji: '🦆', image: 'duck' },
+  { word: 'FROG', letters: ['F', 'R', 'O', 'G'], emoji: '🐸', image: 'frog' },
+  { word: 'LION', letters: ['L', 'I', 'O', 'N'], emoji: '🦁', image: 'lion' },
+  { word: 'BEAR', letters: ['B', 'E', 'A', 'R'], emoji: '🐻', image: 'bear' },
 ]
 
 // Story Puzzle - Sentences to arrange for 5-6 year olds
@@ -423,6 +596,36 @@ export const STORY_PUZZLES = [
     shuffled: ['bird', 'a', 'sees', 'She'],
     hint: 'She ___ ___ ___',
   },
+  {
+    correct: ['We', 'go', 'to', 'school'],
+    shuffled: ['school', 'We', 'to', 'go'],
+    hint: 'We ___ ___ ___',
+  },
+  {
+    correct: ['The', 'bird', 'can', 'fly'],
+    shuffled: ['fly', 'The', 'bird', 'can'],
+    hint: 'The ___ ___ ___',
+  },
+  {
+    correct: ['I', 'see', 'the', 'moon'],
+    shuffled: ['moon', 'I', 'the', 'see'],
+    hint: 'I ___ ___ ___',
+  },
+  {
+    correct: ['He', 'has', 'a', 'book'],
+    shuffled: ['book', 'He', 'has', 'a'],
+    hint: 'He ___ ___ ___',
+  },
+  {
+    correct: ['They', 'like', 'to', 'play'],
+    shuffled: ['play', 'They', 'to', 'like'],
+    hint: 'They ___ ___ ___',
+  },
+  {
+    correct: ['She', 'is', 'my', 'friend'],
+    shuffled: ['friend', 'She', 'my', 'is'],
+    hint: 'She ___ ___ ___',
+  },
 ]
 
 // Racing Data - Letter sequences for races
@@ -430,7 +633,7 @@ export const RACING_LETTERS_4_5 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 
 export const RACING_NUMBERS_5_6 = Array.from({ length: 20 }, (_, i) => i + 1)
 
 // Falling objects for catch games
-export const FALLING_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+export const FALLING_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
 
 // Catch the Bubbles - Bubble types
 export const BUBBLE_TYPES = {
@@ -467,4 +670,47 @@ export const EARLY_PUZZLES = [
   { letter: 'A', emoji: '🍎', name: 'Apple' },
   { letter: 'B', emoji: '🎈', name: 'Balloon' },
   { letter: 'C', emoji: '🐱', name: 'Cat' },
+  { letter: 'D', emoji: '🦆', name: 'Duck' },
+  { letter: 'E', emoji: '🥚', name: 'Egg' },
+  { letter: 'F', emoji: '🐠', name: 'Fish' },
+]
+
+// Rhyme Time - Rhyming word pairs for 4-5 year olds
+export const RHYMING_PAIRS = [
+  { word: 'cat', rhyme: 'hat', emoji: '🐱' },
+  { word: 'dog', rhyme: 'log', emoji: '🐕' },
+  { word: 'sun', rhyme: 'fun', emoji: '☀️' },
+  { word: 'bee', rhyme: 'tree', emoji: '🐝' },
+  { word: 'fish', rhyme: 'dish', emoji: '🐠' },
+  { word: 'star', rhyme: 'car', emoji: '⭐' },
+  { word: 'cake', rhyme: 'snake', emoji: '🎂' },
+  { word: 'bear', rhyme: 'chair', emoji: '🐻' },
+  { word: 'duck', rhyme: 'truck', emoji: '🦆' },
+  { word: 'moon', rhyme: 'spoon', emoji: '🌙' },
+  { word: 'pig', rhyme: 'wig', emoji: '🐷' },
+  { word: 'fox', rhyme: 'box', emoji: '🦊' },
+]
+
+// Animal Sounds - Animals with sounds for 3-4 year olds
+export const ANIMAL_SOUNDS = [
+  { name: 'Dog', emoji: '🐕', sound: 'Woof' },
+  { name: 'Cat', emoji: '🐱', sound: 'Meow' },
+  { name: 'Cow', emoji: '🐄', sound: 'Moo' },
+  { name: 'Duck', emoji: '🦆', sound: 'Quack' },
+  { name: 'Pig', emoji: '🐷', sound: 'Oink' },
+  { name: 'Sheep', emoji: '🐑', sound: 'Baa' },
+  { name: 'Lion', emoji: '🦁', sound: 'Roar' },
+  { name: 'Frog', emoji: '🐸', sound: 'Ribbit' },
+]
+
+// Pattern Match - Color and shape sequences with missing index for 3-4 year olds
+export const PATTERN_SEQUENCES = [
+  { pattern: ['🔴', '🔵', '🔴', '🔵'], missing: 2, name: 'Colors' },
+  { pattern: ['🟡', '🟢', '🟡', '🟢'], missing: 2, name: 'Colors' },
+  { pattern: ['⭐', '❤️', '⭐', '❤️'], missing: 2, name: 'Shapes' },
+  { pattern: ['🔺', '🔵', '🔺', '🔵'], missing: 2, name: 'Shapes' },
+  { pattern: ['🔴', '🔴', '🟢', '🟢'], missing: 2, name: 'Colors' },
+  { pattern: ['🟦', '🟨', '🟦', '🟨'], missing: 2, name: 'Colors' },
+  { pattern: ['🟣', '🟠', '🟣', '🟠'], missing: 2, name: 'Colors' },
+  { pattern: ['⬛', '⬜', '⬛', '⬜'], missing: 2, name: 'Shapes' },
 ]

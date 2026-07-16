@@ -1,0 +1,29 @@
+# DailyBloom — allow search engines and AI crawlers for discoverability
+User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+Sitemap: https://dailybloom.app/sitemap.xml
+
+# Machine-readable summary for AI assistants
+# See also: https://dailybloom.app/llms.txt

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="DailyBloom flower icon">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8FB8"/>
+      <stop offset="100%" stop-color="#FF6B9D"/>
+    </linearGradient>
+    <linearGradient id="petal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFD6E8"/>
+      <stop offset="100%" stop-color="#FF6B9D"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <g transform="translate(256 248)">
+    <ellipse cx="0" cy="-78" rx="52" ry="78" fill="url(#petal)"/>
+    <ellipse cx="74" cy="-24" rx="52" ry="78" fill="url(#petal)" transform="rotate(72 74 -24)"/>
+    <ellipse cx="46" cy="64" rx="52" ry="78" fill="url(#petal)" transform="rotate(144 46 64)"/>
+    <ellipse cx="-46" cy="64" rx="52" ry="78" fill="url(#petal)" transform="rotate(216 -46 64)"/>
+    <ellipse cx="-74" cy="-24" rx="52" ry="78" fill="url(#petal)" transform="rotate(288 -74 -24)"/>
+    <circle cx="0" cy="0" r="58" fill="#FFE066"/>
+    <circle cx="0" cy="0" r="34" fill="#FFB84D"/>
+    <rect x="-14" y="58" width="28" height="72" rx="14" fill="#5CB85C"/>
+    <ellipse cx="0" cy="130" rx="36" ry="18" fill="#4CAF50"/>
+  </g>
+</svg>
