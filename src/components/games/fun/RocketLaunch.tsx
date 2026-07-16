@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { celebrate } from '../../../utils/celebrations'
+import { getRocketLaunchStage, FUN_STAGE_COUNT } from '../../../data/funGameStages'
+import { useFunGameStages } from '../../../hooks/useFunGameStages'
 import FunGameShell from './FunGameShell'
 
 interface RocketLaunchProps {
@@ -7,23 +9,49 @@ interface RocketLaunchProps {
 }
 
 export default function RocketLaunch({ onBack }: RocketLaunchProps) {
+  const { stageIndex, stageComplete, allComplete, finishStage, nextStage, replayStage } =
+    useFunGameStages('rocket-launch')
+  const config = getRocketLaunchStage(stageIndex)
+
   const [fuel, setFuel] = useState(0)
   const [launched, setLaunched] = useState(false)
-  const TARGET = 5
+
+  useEffect(() => {
+    setFuel(0)
+    setLaunched(false)
+  }, [stageIndex])
 
   const addFuel = () => {
-    if (launched) return
+    if (launched || stageComplete) return
     const next = fuel + 1
     setFuel(next)
     celebrate('light')
-    if (next >= TARGET) {
+    if (next >= config.fuelNeeded) {
       setLaunched(true)
       celebrate('full')
+      finishStage()
     }
   }
 
   return (
-    <FunGameShell title="Rocket Launch" emoji="🚀" subtitle={`Fuel ${fuel}/${TARGET}`} onBack={onBack} gradient="from-slate-700 via-indigo-800 to-purple-900">
+    <FunGameShell
+      title="Rocket Launch"
+      emoji="🚀"
+      subtitle={`Fuel ${fuel}/${config.fuelNeeded}`}
+      stageIndex={stageIndex}
+      totalStages={FUN_STAGE_COUNT}
+      stageLabel={config.label}
+      stageComplete={stageComplete}
+      allComplete={allComplete}
+      onNextStage={nextStage}
+      onReplayStage={() => {
+        replayStage()
+        setFuel(0)
+        setLaunched(false)
+      }}
+      onBack={onBack}
+      gradient="from-slate-700 via-indigo-800 to-purple-900"
+    >
       <div className={`text-9xl transition-all duration-1000 ${launched ? '-translate-y-32 scale-75 opacity-80' : ''}`}>
         {launched ? '🌟' : '🚀'}
       </div>

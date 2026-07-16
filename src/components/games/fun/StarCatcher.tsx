@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { celebrate } from '../../../utils/celebrations'
+import { getStarCatcherStage, FUN_STAGE_COUNT } from '../../../data/funGameStages'
+import { useFunGameStages } from '../../../hooks/useFunGameStages'
 import FunGameShell from './FunGameShell'
 
 interface Star {
@@ -13,34 +15,68 @@ interface StarCatcherProps {
 }
 
 export default function StarCatcher({ onBack }: StarCatcherProps) {
+  const { stageIndex, stageComplete, allComplete, finishStage, nextStage, replayStage } =
+    useFunGameStages('star-catcher')
+  const config = getStarCatcherStage(stageIndex)
+
   const [stars, setStars] = useState<Star[]>([])
   const [score, setScore] = useState(0)
-  const TARGET = 20
 
   useEffect(() => {
+    setStars([])
+    setScore(0)
+  }, [stageIndex])
+
+  useEffect(() => {
+    if (stageComplete) return
     const spawn = setInterval(() => {
-      setStars((prev) => [...prev, { id: Date.now(), x: Math.random() * 85 + 5, y: -5 }].slice(-15))
-    }, 500)
+      setStars((prev) =>
+        [...prev, { id: Date.now() + Math.random(), x: Math.random() * 85 + 5, y: -5 }].slice(-config.maxOnScreen),
+      )
+    }, config.spawnMs)
     return () => clearInterval(spawn)
-  }, [])
+  }, [stageComplete, config.spawnMs, config.maxOnScreen])
 
   useEffect(() => {
+    if (stageComplete) return
     const fall = setInterval(() => {
-      setStars((prev) => prev.map((s) => ({ ...s, y: s.y + 2 })).filter((s) => s.y < 105))
+      setStars((prev) => prev.map((s) => ({ ...s, y: s.y + config.fallSpeed })).filter((s) => s.y < 105))
     }, 50)
     return () => clearInterval(fall)
-  }, [])
+  }, [stageComplete, config.fallSpeed])
 
   const catchStar = (id: number) => {
+    if (stageComplete) return
     setStars((prev) => prev.filter((s) => s.id !== id))
     const next = score + 1
     setScore(next)
     celebrate('light')
-    if (next >= TARGET) celebrate('full')
+    if (next >= config.target) {
+      celebrate('full')
+      finishStage()
+    }
   }
 
   return (
-    <FunGameShell title="Star Catcher" emoji="⭐" score={score} subtitle={`${score}/${TARGET}`} onBack={onBack} gradient="from-indigo-400 to-purple-500">
+    <FunGameShell
+      title="Star Catcher"
+      emoji="⭐"
+      score={score}
+      subtitle={`${score}/${config.target}`}
+      stageIndex={stageIndex}
+      totalStages={FUN_STAGE_COUNT}
+      stageLabel={config.label}
+      stageComplete={stageComplete}
+      allComplete={allComplete}
+      onNextStage={nextStage}
+      onReplayStage={() => {
+        replayStage()
+        setStars([])
+        setScore(0)
+      }}
+      onBack={onBack}
+      gradient="from-indigo-400 to-purple-500"
+    >
       <div className="relative w-full h-full max-w-2xl bg-indigo-900/20 rounded-3xl border-4 border-white/30">
         {stars.map((s) => (
           <button

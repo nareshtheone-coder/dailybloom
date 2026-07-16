@@ -35,14 +35,23 @@ export default function GameStageHeader({
           {extra ? ` · ${extra}` : ''}
         </div>
         <div className="flex justify-center gap-1 mt-2">
-          {Array.from({ length: totalStages }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-2 w-6 md:w-8 rounded-full transition-all ${
-                i < stageIndex ? 'bg-white' : i === stageIndex ? 'bg-yellow-300 scale-110' : 'bg-white/30'
-              }`}
-            />
-          ))}
+          {totalStages > 20 ? (
+            <div className="w-full max-w-xs h-2 bg-white/30 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-yellow-300 rounded-full transition-all"
+                style={{ width: `${((stageIndex + 1) / totalStages) * 100}%` }}
+              />
+            </div>
+          ) : (
+            Array.from({ length: totalStages }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-2 w-6 md:w-8 rounded-full transition-all ${
+                  i < stageIndex ? 'bg-white' : i === stageIndex ? 'bg-yellow-300 scale-110' : 'bg-white/30'
+                }`}
+              />
+            ))
+          )}
         </div>
       </div>
       <div className="w-12 md:w-16" />
