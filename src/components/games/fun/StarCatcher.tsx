@@ -1,59 +1,110 @@
-import { useState, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { celebrate } from '../../../utils/celebrations'
 import { getStarCatcherStage, FUN_STAGE_COUNT } from '../../../data/funGameStages'
 import { useFunGameStages } from '../../../hooks/useFunGameStages'
 import FunGameShell from './FunGameShell'
+import { useCanvasLoop, hitCircle } from '../../../engine/canvas/useCanvasLoop'
+import { drawStar } from '../../../engine/canvas/draw'
+import { spawnBurst, updateParticles, drawParticles } from '../../../engine/canvas/particles'
+import type { Particle } from '../../../engine/canvas/types'
 
 interface Star {
   id: number
   x: number
   y: number
+  size: number
+  rot: number
+  vy: number
 }
 
-interface StarCatcherProps {
-  onBack: () => void
-}
-
-export default function StarCatcher({ onBack }: StarCatcherProps) {
+export default function StarCatcher({ onBack }: { onBack: () => void }) {
   const { stageIndex, stageComplete, allComplete, finishStage, nextStage, replayStage } =
     useFunGameStages('star-catcher')
   const config = getStarCatcherStage(stageIndex)
 
-  const [stars, setStars] = useState<Star[]>([])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const starsRef = useRef<Star[]>([])
+  const particlesRef = useRef<Particle[]>([])
+  const caughtRef = useRef(0)
+  const spawnRef = useRef(0)
+  const idRef = useRef(0)
+  const doneRef = useRef(false)
   const [score, setScore] = useState(0)
 
-  useEffect(() => {
-    setStars([])
+  const reset = useCallback(() => {
+    starsRef.current = []
+    particlesRef.current = []
+    caughtRef.current = 0
+    doneRef.current = false
     setScore(0)
-  }, [stageIndex])
+  }, [])
 
-  useEffect(() => {
-    if (stageComplete) return
-    const spawn = setInterval(() => {
-      setStars((prev) =>
-        [...prev, { id: Date.now() + Math.random(), x: Math.random() * 85 + 5, y: -5 }].slice(-config.maxOnScreen),
-      )
-    }, config.spawnMs)
-    return () => clearInterval(spawn)
-  }, [stageComplete, config.spawnMs, config.maxOnScreen])
+  useEffect(() => reset(), [stageIndex, reset])
 
-  useEffect(() => {
-    if (stageComplete) return
-    const fall = setInterval(() => {
-      setStars((prev) => prev.map((s) => ({ ...s, y: s.y + config.fallSpeed })).filter((s) => s.y < 105))
-    }, 50)
-    return () => clearInterval(fall)
-  }, [stageComplete, config.fallSpeed])
+  useCanvasLoop(canvasRef, (ctx, size, dt, time) => {
+    if (!size.width) return
+    const g = ctx.createLinearGradient(0, 0, 0, size.height)
+    g.addColorStop(0, '#1A237E')
+    g.addColorStop(1, '#3949AB')
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, size.width, size.height)
+    for (let i = 0; i < 30; i++) {
+      const sx = ((i * 97) % size.width)
+      const sy = ((i * 53 + time * 20) % size.height)
+      ctx.fillStyle = `rgba(255,255,255,${0.2 + (i % 5) * 0.1})`
+      ctx.fillRect(sx, sy, 2, 2)
+    }
 
-  const catchStar = (id: number) => {
-    if (stageComplete) return
-    setStars((prev) => prev.filter((s) => s.id !== id))
-    const next = score + 1
-    setScore(next)
-    celebrate('light')
-    if (next >= config.target) {
-      celebrate('full')
-      finishStage()
+    if (!doneRef.current && !stageComplete) {
+      spawnRef.current += dt * 1000
+      if (spawnRef.current >= config.spawnMs && starsRef.current.length < config.maxOnScreen) {
+        spawnRef.current = 0
+        starsRef.current.push({
+          id: idRef.current++,
+          x: 30 + Math.random() * (size.width - 60),
+          y: -20,
+          size: 18 + Math.random() * 10,
+          rot: Math.random() * Math.PI,
+          vy: config.fallSpeed * 45,
+        })
+      }
+      for (const s of starsRef.current) {
+        s.y += s.vy * dt
+        s.rot += dt * 2
+      }
+      starsRef.current = starsRef.current.filter((s) => s.y < size.height + 30)
+    }
+
+    updateParticles(particlesRef.current, dt)
+    for (const s of starsRef.current) drawStar(ctx, s.x, s.y, s.size, s.rot)
+    drawParticles(ctx, particlesRef.current)
+
+    ctx.font = '48px serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('🧺', size.width / 2, size.height - 24)
+  })
+
+  const onTap = (cx: number, cy: number) => {
+    const canvas = canvasRef.current
+    if (!canvas || doneRef.current) return
+    const rect = canvas.getBoundingClientRect()
+    const x = cx - rect.left
+    const y = cy - rect.top
+    for (const s of [...starsRef.current].reverse()) {
+      if (hitCircle(x, y, s.x, s.y, s.size + 8)) {
+        starsRef.current = starsRef.current.filter((st) => st.id !== s.id)
+        spawnBurst(particlesRef.current, s.x, s.y, 10, 48, 4)
+        const next = caughtRef.current + 1
+        caughtRef.current = next
+        setScore(next)
+        celebrate('light')
+        if (next >= config.target) {
+          doneRef.current = true
+          celebrate('full')
+          finishStage()
+        }
+        break
+      }
     }
   }
 
@@ -69,27 +120,12 @@ export default function StarCatcher({ onBack }: StarCatcherProps) {
       stageComplete={stageComplete}
       allComplete={allComplete}
       onNextStage={nextStage}
-      onReplayStage={() => {
-        replayStage()
-        setStars([])
-        setScore(0)
-      }}
+      onReplayStage={() => { replayStage(); reset() }}
       onBack={onBack}
-      gradient="from-indigo-400 to-purple-500"
+      scene="night"
+      fullViewport
     >
-      <div className="relative w-full h-full max-w-2xl bg-indigo-900/20 rounded-3xl border-4 border-white/30">
-        {stars.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => catchStar(s.id)}
-            className="absolute text-4xl animate-pulse"
-            style={{ left: `${s.x}%`, top: `${s.y}%` }}
-          >
-            ⭐
-          </button>
-        ))}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-4xl">🧺</div>
-      </div>
+      <canvas ref={canvasRef} className="w-full h-full touch-none" onPointerDown={(e) => onTap(e.clientX, e.clientY)} />
     </FunGameShell>
   )
 }

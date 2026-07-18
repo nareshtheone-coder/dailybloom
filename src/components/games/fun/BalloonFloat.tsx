@@ -1,23 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { celebrate } from '../../../utils/celebrations'
 import { getBalloonPopStage, FUN_STAGE_COUNT } from '../../../data/funGameStages'
 import { useFunGameStages } from '../../../hooks/useFunGameStages'
 import FunGameShell from './FunGameShell'
+import { useCanvasLoop, hitCircle } from '../../../engine/canvas/useCanvasLoop'
+import { drawSky, drawBalloon } from '../../../engine/canvas/draw'
+import { spawnBurst, updateParticles, drawParticles } from '../../../engine/canvas/particles'
+import type { Particle } from '../../../engine/canvas/types'
 
 interface Balloon {
   id: number
   x: number
   y: number
-  color: string
-  emoji: string
+  r: number
+  hue: number
+  vy: number
 }
-
-const COLORS = [
-  { color: 'bg-red-400', emoji: '🎈' },
-  { color: 'bg-yellow-400', emoji: '🎈' },
-  { color: 'bg-blue-400', emoji: '🎈' },
-  { color: 'bg-pink-400', emoji: '🎈' },
-]
 
 interface BalloonFloatProps {
   onBack: () => void
@@ -28,46 +26,84 @@ export default function BalloonFloat({ onBack }: BalloonFloatProps) {
     useFunGameStages('balloon-float')
   const config = getBalloonPopStage(stageIndex)
 
-  const [balloons, setBalloons] = useState<Balloon[]>([])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const balloonsRef = useRef<Balloon[]>([])
+  const particlesRef = useRef<Particle[]>([])
+  const poppedRef = useRef(0)
+  const spawnTimerRef = useRef(0)
+  const idRef = useRef(0)
+  const doneRef = useRef(false)
   const [score, setScore] = useState(0)
 
-  useEffect(() => {
-    setBalloons([])
+  const reset = useCallback(() => {
+    balloonsRef.current = []
+    particlesRef.current = []
+    poppedRef.current = 0
+    spawnTimerRef.current = 0
+    doneRef.current = false
     setScore(0)
-  }, [stageIndex])
+  }, [])
 
-  useEffect(() => {
-    if (stageComplete) return
-    const spawn = setInterval(() => {
-      const c = COLORS[Math.floor(Math.random() * COLORS.length)]
-      setBalloons((prev) =>
-        [...prev, { id: Date.now() + Math.random(), x: Math.random() * 85 + 5, y: 100, ...c }].slice(
-          -config.maxOnScreen,
-        ),
-      )
-    }, config.spawnMs)
-    return () => clearInterval(spawn)
-  }, [stageComplete, config.spawnMs, config.maxOnScreen])
+  useEffect(() => reset(), [stageIndex, reset])
 
-  useEffect(() => {
-    if (stageComplete) return
-    const move = setInterval(() => {
-      setBalloons((prev) => prev.map((b) => ({ ...b, y: b.y - config.riseSpeed })).filter((b) => b.y > -15))
-    }, 50)
-    return () => clearInterval(move)
-  }, [stageComplete, config.riseSpeed])
+  const pop = useCallback(
+    (b: Balloon) => {
+      if (doneRef.current) return
+      balloonsRef.current = balloonsRef.current.filter((x) => x.id !== b.id)
+      spawnBurst(particlesRef.current, b.x, b.y, 12, b.hue, 4)
+      const next = poppedRef.current + 1
+      poppedRef.current = next
+      setScore(next)
+      celebrate('light')
+      if (next >= config.target) {
+        doneRef.current = true
+        celebrate('full')
+        finishStage()
+      }
+    },
+    [config.target, finishStage],
+  )
 
-  const pop = (id: number) => {
-    if (stageComplete) return
-    setBalloons((prev) => prev.filter((b) => b.id !== id))
-    const next = score + 1
-    setScore(next)
-    celebrate('light')
-    if (next >= config.target) {
-      celebrate('full')
-      finishStage()
+  const onPointer = useCallback(
+    (cx: number, cy: number) => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const x = cx - rect.left
+      const y = cy - rect.top
+      for (const b of [...balloonsRef.current].reverse()) {
+        if (hitCircle(x, y, b.x, b.y, b.r)) {
+          pop(b)
+          break
+        }
+      }
+    },
+    [pop],
+  )
+
+  useCanvasLoop(canvasRef, (ctx, size, dt, time) => {
+    if (!size.width) return
+    drawSky(ctx, size.width, size.height, '#FF8A80', '#FF5252', time)
+    if (!doneRef.current && !stageComplete) {
+      spawnTimerRef.current += dt * 1000
+      if (spawnTimerRef.current >= config.spawnMs && balloonsRef.current.length < config.maxOnScreen) {
+        spawnTimerRef.current = 0
+        balloonsRef.current.push({
+          id: idRef.current++,
+          x: 50 + Math.random() * (size.width - 100),
+          y: size.height + 50,
+          r: 32 + Math.random() * 12,
+          hue: Math.random() * 360,
+          vy: config.riseSpeed * 55,
+        })
+      }
+      for (const b of balloonsRef.current) b.y -= b.vy * dt
+      balloonsRef.current = balloonsRef.current.filter((b) => b.y > -80)
     }
-  }
+    updateParticles(particlesRef.current, dt)
+    for (const b of balloonsRef.current) drawBalloon(ctx, b.x, b.y, b.r, b.hue)
+    drawParticles(ctx, particlesRef.current)
+  })
 
   return (
     <FunGameShell
@@ -81,27 +117,12 @@ export default function BalloonFloat({ onBack }: BalloonFloatProps) {
       stageComplete={stageComplete}
       allComplete={allComplete}
       onNextStage={nextStage}
-      onReplayStage={() => {
-        replayStage()
-        setBalloons([])
-        setScore(0)
-      }}
+      onReplayStage={() => { replayStage(); reset() }}
       onBack={onBack}
-      gradient="from-rose-300 to-orange-300"
+      scene="sunset"
+      fullViewport
     >
-      <div className="relative w-full h-full max-w-2xl">
-        {balloons.map((b) => (
-          <button
-            key={b.id}
-            onClick={() => pop(b.id)}
-            className={`absolute text-5xl w-16 h-20 ${b.color} rounded-full shadow-lg hover:scale-110`}
-            style={{ left: `${b.x}%`, top: `${b.y}%` }}
-          >
-            {b.emoji}
-          </button>
-        ))}
-      </div>
-      <p className="text-white font-bold mt-4">Pop balloons before they float away!</p>
+      <canvas ref={canvasRef} className="w-full h-full touch-none" onPointerDown={(e) => onPointer(e.clientX, e.clientY)} />
     </FunGameShell>
   )
 }

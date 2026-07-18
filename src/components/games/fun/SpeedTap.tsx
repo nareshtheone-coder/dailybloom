@@ -1,59 +1,69 @@
-import { useState, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { celebrate } from '../../../utils/celebrations'
 import { getSpeedTapStage, FUN_STAGE_COUNT } from '../../../data/funGameStages'
 import { useFunGameStages } from '../../../hooks/useFunGameStages'
 import FunGameShell from './FunGameShell'
+import { useCanvasLoop, hitCircle } from '../../../engine/canvas/useCanvasLoop'
+import { drawSky, drawTapTarget } from '../../../engine/canvas/draw'
 
-interface SpeedTapProps {
-  onBack: () => void
-}
-
-export default function SpeedTap({ onBack }: SpeedTapProps) {
+export default function SpeedTap({ onBack }: { onBack: () => void }) {
   const { stageIndex, stageComplete, allComplete, finishStage, nextStage, replayStage } =
     useFunGameStages('speed-tap')
   const config = getSpeedTapStage(stageIndex)
 
-  const [timeLeft, setTimeLeft] = useState(config.durationSec)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const targetRef = useRef({ x: 200, y: 200 })
+  const scoreRef = useRef(0)
+  const timeRef = useRef(config.durationSec)
+  const pulseRef = useRef(0)
+  const runningRef = useRef(true)
   const [score, setScore] = useState(0)
-  const [pos, setPos] = useState({ x: 50, y: 50 })
-  const [running, setRunning] = useState(true)
+  const [timeLeft, setTimeLeft] = useState(config.durationSec)
 
-  useEffect(() => {
-    setTimeLeft(config.durationSec)
+  const reset = useCallback(() => {
+    scoreRef.current = 0
+    timeRef.current = config.durationSec
+    runningRef.current = true
     setScore(0)
-    setPos({ x: 50, y: 50 })
-    setRunning(true)
-  }, [stageIndex, config.durationSec])
+    setTimeLeft(config.durationSec)
+  }, [config.durationSec])
 
-  useEffect(() => {
-    if (!running || stageComplete) return
-    const t = setInterval(() => {
-      setTimeLeft((x) => {
-        if (x <= 1) {
-          setRunning(false)
-          return 0
-        }
-        return x - 1
-      })
-    }, 1000)
-    return () => clearInterval(t)
-  }, [running, stageComplete])
+  useEffect(() => reset(), [stageIndex, reset])
 
-  useEffect(() => {
-    if (!running && score >= config.target && !stageComplete) {
-      celebrate('full')
-      finishStage()
+  useCanvasLoop(canvasRef, (ctx, size, dt, time) => {
+    if (!size.width) return
+    drawSky(ctx, size.width, size.height, '#FFB74D', '#FF7043', time)
+    pulseRef.current = time * 5
+
+    if (runningRef.current && !stageComplete) {
+      timeRef.current -= dt
+      if (timeRef.current <= 0) runningRef.current = false
+      setTimeLeft(Math.ceil(Math.max(0, timeRef.current)))
     }
-  }, [running, score, config.target, finishStage, stageComplete])
 
-  const tap = () => {
-    if (!running || stageComplete) return
-    const next = score + 1
+    if (runningRef.current) {
+      drawTapTarget(ctx, targetRef.current.x, targetRef.current.y, config.buttonSize / 2, pulseRef.current)
+    }
+  })
+
+  const tap = (cx: number, cy: number) => {
+    if (!runningRef.current || stageComplete) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const x = cx - rect.left
+    const y = cy - rect.top
+    if (!hitCircle(x, y, targetRef.current.x, targetRef.current.y, config.buttonSize / 2)) return
+    const next = scoreRef.current + 1
+    scoreRef.current = next
     setScore(next)
-    setPos({ x: Math.random() * 70 + 15, y: Math.random() * 60 + 20 })
+    targetRef.current = {
+      x: 60 + Math.random() * (rect.width - 120),
+      y: 80 + Math.random() * (rect.height - 160),
+    }
     celebrate('light')
     if (next >= config.target) {
-      setRunning(false)
+      runningRef.current = false
       celebrate('full')
       finishStage()
     }
@@ -71,29 +81,12 @@ export default function SpeedTap({ onBack }: SpeedTapProps) {
       stageComplete={stageComplete}
       allComplete={allComplete}
       onNextStage={nextStage}
-      onReplayStage={() => {
-        replayStage()
-        setTimeLeft(config.durationSec)
-        setScore(0)
-        setRunning(true)
-      }}
+      onReplayStage={() => { replayStage(); reset() }}
       onBack={onBack}
-      gradient="from-yellow-400 to-orange-500"
+      scene="sunset"
+      fullViewport
     >
-      <div className="relative w-full h-full max-w-2xl">
-        {running && (
-          <button
-            onClick={tap}
-            className="absolute bg-red-500 rounded-full text-4xl shadow-xl animate-pulse hover:scale-110 flex items-center justify-center"
-            style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: config.buttonSize, height: config.buttonSize }}
-          >
-            👆
-          </button>
-        )}
-      </div>
-      {!running && score < config.target && (
-        <p className="text-white text-xl font-bold">Need {config.target} taps — try again!</p>
-      )}
+      <canvas ref={canvasRef} className="w-full h-full touch-none" onPointerDown={(e) => tap(e.clientX, e.clientY)} />
     </FunGameShell>
   )
 }

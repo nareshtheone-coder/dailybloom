@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
-import GameStageHeader from '../../GameStageHeader'
+import AnimatedScene from '../../../ui/AnimatedScene'
+import PremiumHUD from '../../../ui/PremiumHUD'
+import GameViewport from '../../../ui/GameViewport'
 import StageCompleteOverlay from '../../StageCompleteOverlay'
 
 interface FunGameShellProps {
@@ -10,6 +12,7 @@ interface FunGameShellProps {
   onBack: () => void
   children: ReactNode
   gradient?: string
+  scene?: 'sky' | 'sunset' | 'night' | 'meadow'
   stageIndex: number
   totalStages: number
   stageLabel?: string
@@ -17,6 +20,7 @@ interface FunGameShellProps {
   allComplete: boolean
   onNextStage: () => void
   onReplayStage: () => void
+  fullViewport?: boolean
 }
 
 export default function FunGameShell({
@@ -26,7 +30,7 @@ export default function FunGameShell({
   score,
   onBack,
   children,
-  gradient = 'from-fuchsia-300 via-pink-300 to-orange-300',
+  scene = 'sky',
   stageIndex,
   totalStages,
   stageLabel,
@@ -34,11 +38,13 @@ export default function FunGameShell({
   allComplete,
   onNextStage,
   onReplayStage,
+  fullViewport = false,
 }: FunGameShellProps) {
   return (
-    <div className={`w-full h-full bg-gradient-to-br ${gradient} flex flex-col overflow-hidden`}>
-      <GameStageHeader
-        title={`${emoji} ${title}`}
+    <AnimatedScene variant={scene} className="flex flex-col">
+      <PremiumHUD
+        title={title}
+        emoji={emoji}
         stageIndex={stageIndex}
         totalStages={totalStages}
         stageLabel={stageLabel}
@@ -46,12 +52,13 @@ export default function FunGameShell({
         extra={subtitle}
         onBack={onBack}
       />
-      <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden relative">
-        <span className="absolute top-2 right-4 text-xs bg-white/30 text-white px-2 py-0.5 rounded-full font-bold">
-          🎉 Just for fun!
-        </span>
-        {children}
-      </div>
+      {fullViewport ? (
+        <GameViewport>{children}</GameViewport>
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center p-4 min-h-0 overflow-hidden relative">
+          {children}
+        </div>
+      )}
       <StageCompleteOverlay
         show={stageComplete}
         stageIndex={stageIndex}
@@ -61,6 +68,6 @@ export default function FunGameShell({
         onReplay={onReplayStage}
         onBack={onBack}
       />
-    </div>
+    </AnimatedScene>
   )
 }

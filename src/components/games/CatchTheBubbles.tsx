@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { celebrate } from '../../utils/celebrations'
 import { getBubblePopStage, FUN_STAGE_COUNT } from '../../data/funGameStages'
 import { useFunGameStages } from '../../hooks/useFunGameStages'
 import FunGameShell from './fun/FunGameShell'
+import { useCanvasLoop, hitCircle } from '../../engine/canvas/useCanvasLoop'
+import { drawSky, drawBubble } from '../../engine/canvas/draw'
+import type { Particle } from '../../engine/canvas/types'
+import { spawnBurst, updateParticles, drawParticles } from '../../engine/canvas/particles'
 
 interface CatchTheBubblesProps {
   onBack: () => void
@@ -12,14 +16,11 @@ interface Bubble {
   id: number
   x: number
   y: number
-  type: 'regular' | 'gold' | 'rainbow'
-  popped: boolean
-}
-
-const BUBBLE_TYPES = {
-  regular: { color: 'bg-blue-400', emoji: '🫧', score: 1 },
-  gold: { color: 'bg-yellow-400', emoji: '✨', score: 2 },
-  rainbow: { color: 'bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400', emoji: '🌈', score: 3 },
+  r: number
+  hue: number
+  vy: number
+  wobble: number
+  points: number
 }
 
 export default function CatchTheBubbles({ onBack }: CatchTheBubblesProps) {
@@ -27,73 +28,116 @@ export default function CatchTheBubbles({ onBack }: CatchTheBubblesProps) {
     useFunGameStages('catch-the-bubbles')
   const config = getBubblePopStage(stageIndex)
 
-  const [bubbles, setBubbles] = useState<Bubble[]>([])
-  const [score, setScore] = useState(0)
-  const [poppedCount, setPoppedCount] = useState(0)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const bubblesRef = useRef<Bubble[]>([])
+  const particlesRef = useRef<Particle[]>([])
+  const scoreRef = useRef(0)
+  const poppedRef = useRef(0)
+  const spawnTimerRef = useRef(0)
+  const idRef = useRef(0)
+  const completeRef = useRef(false)
+
+  const [displayScore, setDisplayScore] = useState(0)
+  const [displayPopped, setDisplayPopped] = useState(0)
+
+  const resetStage = useCallback(() => {
+    bubblesRef.current = []
+    particlesRef.current = []
+    scoreRef.current = 0
+    poppedRef.current = 0
+    spawnTimerRef.current = 0
+    completeRef.current = false
+    setDisplayScore(0)
+    setDisplayPopped(0)
+  }, [])
 
   useEffect(() => {
-    setBubbles([])
-    setScore(0)
-    setPoppedCount(0)
-  }, [stageIndex])
+    resetStage()
+  }, [stageIndex, resetStage])
 
-  useEffect(() => {
-    if (stageComplete) return
-    const interval = setInterval(() => {
-      const roll = Math.random()
-      const type: Bubble['type'] =
-        roll > 1 - config.specialRate
-          ? roll > 1 - config.specialRate / 2
-            ? 'rainbow'
-            : 'gold'
-          : 'regular'
-      const newBubble: Bubble = {
-        id: Date.now() + Math.random(),
-        x: Math.random() * 80 + 10,
-        y: Math.random() * 20 - 20,
-        type,
-        popped: false,
+  const popBubble = useCallback(
+    (b: Bubble) => {
+      if (completeRef.current || stageComplete) return
+      bubblesRef.current = bubblesRef.current.filter((x) => x.id !== b.id)
+      spawnBurst(particlesRef.current, b.x, b.y, 14, b.hue, 5)
+      scoreRef.current += b.points
+      poppedRef.current += 1
+      setDisplayScore(scoreRef.current)
+      setDisplayPopped(poppedRef.current)
+      celebrate('light')
+      if (poppedRef.current >= config.target) {
+        completeRef.current = true
+        celebrate('full')
+        finishStage()
       }
-      setBubbles((prev) => [...prev, newBubble].slice(-config.maxOnScreen))
-    }, config.spawnMs)
-    return () => clearInterval(interval)
-  }, [stageComplete, config])
+    },
+    [config.target, finishStage, stageComplete],
+  )
 
-  useEffect(() => {
-    if (stageComplete) return
-    const interval = setInterval(() => {
-      setBubbles((prev) =>
-        prev.map((b) => ({ ...b, y: b.y + config.speed })).filter((b) => b.y < 110 && !b.popped),
-      )
-    }, 50)
-    return () => clearInterval(interval)
-  }, [stageComplete, config.speed])
+  const handlePointer = useCallback(
+    (clientX: number, clientY: number) => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const x = clientX - rect.left
+      const y = clientY - rect.top
+      for (const b of [...bubblesRef.current].reverse()) {
+        if (hitCircle(x, y, b.x, b.y, b.r)) {
+          popBubble(b)
+          break
+        }
+      }
+    },
+    [popBubble],
+  )
 
-  const handleBubbleClick = (bubbleId: number) => {
-    if (stageComplete) return
-    const bubble = bubbles.find((b) => b.id === bubbleId)
-    if (!bubble || bubble.popped) return
+  useCanvasLoop(
+    canvasRef,
+    (ctx, size, dt, time) => {
+      if (size.width === 0) return
+      drawSky(ctx, size.width, size.height, '#4FC3F7', '#0288D1', time)
 
-    setBubbles((prev) => prev.map((b) => (b.id === bubbleId ? { ...b, popped: true } : b)))
-    const points = BUBBLE_TYPES[bubble.type].score
-    const newScore = score + points
-    const newCount = poppedCount + 1
-    setScore(newScore)
-    setPoppedCount(newCount)
-    celebrate('light')
+      if (!completeRef.current && !stageComplete) {
+        spawnTimerRef.current += dt * 1000
+        if (spawnTimerRef.current >= config.spawnMs) {
+          spawnTimerRef.current = 0
+          if (bubblesRef.current.length < config.maxOnScreen) {
+            const special = Math.random() < config.specialRate
+            bubblesRef.current.push({
+              id: idRef.current++,
+              x: 40 + Math.random() * (size.width - 80),
+              y: size.height + 40,
+              r: special ? 36 : 28 + Math.random() * 10,
+              hue: special ? 45 + Math.random() * 30 : 190 + Math.random() * 50,
+              vy: config.speed * (50 + Math.random() * 20),
+              wobble: Math.random() * Math.PI * 2,
+              points: special ? 3 : 1,
+            })
+          }
+        }
+        for (const b of bubblesRef.current) {
+          b.y -= b.vy * dt
+          b.wobble += dt * 4
+          b.x += Math.sin(b.wobble) * 0.8
+        }
+        bubblesRef.current = bubblesRef.current.filter((b) => b.y > -60)
+      }
 
-    if (newCount >= config.target) {
-      celebrate('full')
-      finishStage()
-    }
-  }
+      updateParticles(particlesRef.current, dt)
+      for (const b of bubblesRef.current) {
+        drawBubble(ctx, b.x, b.y, b.r, b.hue, b.wobble)
+      }
+      drawParticles(ctx, particlesRef.current)
+    },
+    !stageComplete,
+  )
 
   return (
     <FunGameShell
       title="Bubble Pop"
       emoji="🫧"
-      score={score}
-      subtitle={`${poppedCount}/${config.target} bubbles`}
+      score={displayScore}
+      subtitle={`${displayPopped}/${config.target} bubbles`}
       stageIndex={stageIndex}
       totalStages={FUN_STAGE_COUNT}
       stageLabel={config.label}
@@ -102,31 +146,17 @@ export default function CatchTheBubbles({ onBack }: CatchTheBubblesProps) {
       onNextStage={nextStage}
       onReplayStage={() => {
         replayStage()
-        setBubbles([])
-        setScore(0)
-        setPoppedCount(0)
+        resetStage()
       }}
       onBack={onBack}
-      gradient="from-sky-300 to-blue-400"
+      scene="sky"
+      fullViewport
     >
-      <div className="relative flex-1 w-full max-w-2xl bg-sky-200/30 rounded-3xl border-4 border-white/50 overflow-hidden min-h-[50vh]">
-        {bubbles.map((bubble) => (
-          <button
-            key={bubble.id}
-            onClick={() => handleBubbleClick(bubble.id)}
-            disabled={bubble.popped}
-            className={`absolute w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-2xl md:text-3xl transition-all ${
-              bubble.popped
-                ? 'scale-0 opacity-0'
-                : `${BUBBLE_TYPES[bubble.type].color} shadow-lg hover:scale-110 animate-pulse`
-            }`}
-            style={{ left: `${bubble.x}%`, top: `${bubble.y}%` }}
-          >
-            {!bubble.popped && BUBBLE_TYPES[bubble.type].emoji}
-          </button>
-        ))}
-      </div>
-      <p className="text-white text-lg font-bold mt-4 animate-bounce">👉 Tap bubbles to pop! 💦</p>
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full touch-none block"
+        onPointerDown={(e) => handlePointer(e.clientX, e.clientY)}
+      />
     </FunGameShell>
   )
 }

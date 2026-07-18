@@ -1,88 +1,70 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { celebrate } from '../../utils/celebrations'
+import PremiumLearningFrame from '../PremiumLearningFrame'
 
 interface ColorMatchProps {
   onBack: () => void
 }
 
-interface ColorItem {
-  id: number
-  color: string
-  matched: boolean
-}
-
-interface ColorMatch {
-  id: number
-  pairs: ColorItem[]
-}
-
 const COLORS = [
-  { name: 'red', hex: '#EF4444', emoji: '🔴' },
-  { name: 'blue', hex: '#3B82F6', emoji: '🔵' },
-  { name: 'yellow', hex: '#FBBF24', emoji: '🟡' },
-  { name: 'green', hex: '#10B981', emoji: '🟢' },
+  { name: 'Red', hex: '#EF4444', emoji: '🔴' },
+  { name: 'Blue', hex: '#3B82F6', emoji: '🔵' },
+  { name: 'Yellow', hex: '#FBBF24', emoji: '🟡' },
+  { name: 'Green', hex: '#10B981', emoji: '🟢' },
 ]
 
 export default function ColorMatch({ onBack }: ColorMatchProps) {
-  const [matches, setMatches] = useState<ColorMatch[]>([])
+  const [target, setTarget] = useState(COLORS[0])
   const [score, setScore] = useState(0)
+  const [flash, setFlash] = useState<boolean | null>(null)
 
   useEffect(() => {
-    // Create matches - each color pair
-    const newMatches = COLORS.map((color, idx) => ({
-      id: idx,
-      pairs: [
-        { id: idx * 2, color: color.hex, matched: false },
-        { id: idx * 2 + 1, color: color.hex, matched: false },
-      ],
-    }))
-    setMatches(newMatches)
-  }, [])
+    setTarget(COLORS[Math.floor(Math.random() * COLORS.length)])
+  }, [score])
 
-  const handleMatch = (matchIdx: number, pairIdx: number) => {
-    setMatches(prev => {
-      const updated = [...prev]
-      updated[matchIdx].pairs[pairIdx].matched = true
-      return updated
-    })
-    setScore(s => s + 1)
+  const pick = (c: (typeof COLORS)[0]) => {
+    const ok = c.name === target.name
+    setFlash(ok)
+    if (ok) {
+      celebrate('medium')
+      setScore((s) => s + 1)
+    } else celebrate('light')
+    setTimeout(() => setFlash(null), 500)
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex justify-between items-center p-4 md:p-6 bg-white/20 backdrop-blur-sm">
-        <button
-          onClick={onBack}
-          className="text-4xl md:text-5xl bg-white/80 rounded-full p-2 md:p-3 hover:bg-white transition-all active:scale-95"
+    <PremiumLearningFrame title="Color Match" emoji="🎨" score={score} onBack={onBack}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-indigo-500/30 to-purple-600/30">
+        <motion.p
+          className="font-display text-2xl md:text-3xl text-white font-bold mb-8 drop-shadow-lg"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ repeat: Infinity, duration: 2 }}
         >
-          ←
-        </button>
-        <div className="text-2xl md:text-4xl font-bold text-white">Matches: {score}</div>
-        <div className="w-12 md:w-16"></div>
+          Tap the {target.emoji} {target.name}!
+        </motion.p>
+        <div className="grid grid-cols-2 gap-4 md:gap-6 w-full max-w-sm">
+          {COLORS.map((c) => (
+            <button
+              key={c.name}
+              onClick={() => pick(c)}
+              className="relative rounded-3xl h-28 md:h-32 shadow-[0_8px_0_rgba(0,0,0,0.25)] active:translate-y-1 active:shadow-none transition-all ring-4 ring-white/30 overflow-hidden"
+              style={{ backgroundColor: c.hex }}
+            >
+              <span className="text-5xl">{c.emoji}</span>
+              {flash !== null && c.name === target.name && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1.5, opacity: 0 }}
+                  className="absolute inset-0 flex items-center justify-center text-6xl"
+                >
+                  {flash ? '✓' : ''}
+                </motion.span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
-
-      {/* Game Area */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 gap-4 md:gap-8 overflow-y-auto">
-        {matches.map((match, matchIdx) => (
-          <div key={match.id} className="flex gap-6 md:gap-12 items-center">
-            {match.pairs.map((pair, pairIdx) => (
-              <button
-                key={pair.id}
-                onClick={() => !pair.matched && handleMatch(matchIdx, pairIdx)}
-                disabled={pair.matched}
-                className={`w-24 h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl font-bold text-4xl md:text-6xl transition-all active:scale-95 shadow-lg ${
-                  pair.matched
-                    ? 'opacity-50 scale-90'
-                    : 'hover:scale-105'
-                }`}
-                style={{ backgroundColor: pair.color }}
-              >
-                ✓
-              </button>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
+    </PremiumLearningFrame>
   )
 }

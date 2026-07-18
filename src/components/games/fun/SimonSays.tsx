@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { celebrate } from '../../../utils/celebrations'
 import { getSimonSaysStage, FUN_STAGE_COUNT } from '../../../data/funGameStages'
 import { useFunGameStages } from '../../../hooks/useFunGameStages'
+import ChoiceTile from '../../../ui/ChoiceTile'
 import FunGameShell from './FunGameShell'
 
 const COLORS = ['🔴', '🟢', '🔵', '🟡']
@@ -96,18 +98,18 @@ export default function SimonSays({ onBack }: SimonSaysProps) {
       <button onClick={replay} disabled={playing} className="mb-4 px-4 py-2 bg-white/80 rounded-full font-bold text-sm">
         🔊 Replay pattern
       </button>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:gap-5">
         {COLORS.map((c, i) => (
-          <button
-            key={i}
-            onClick={() => tap(i)}
-            disabled={stageComplete || playing}
-            className={`w-28 h-28 md:w-32 md:h-32 rounded-2xl text-6xl flex items-center justify-center transition-all ${
-              showing === i ? 'bg-white scale-110 ring-4 ring-white' : 'bg-white/50'
-            }`}
-          >
-            {c}
-          </button>
+          <motion.div key={i} animate={showing === i ? { scale: 1.08 } : { scale: 1 }}>
+            <ChoiceTile
+              size="lg"
+              onClick={() => tap(i)}
+              disabled={stageComplete || playing}
+              selected={showing === i}
+            >
+              <span className="text-5xl md:text-6xl">{c}</span>
+            </ChoiceTile>
+          </motion.div>
         ))}
       </div>
     </FunGameShell>
