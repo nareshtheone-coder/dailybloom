@@ -42,6 +42,14 @@ export const GAMES_LIBRARY = {
     },
     // NEW: Early alphabet games for 2-3 year olds
     {
+      id: 'letter-tracing',
+      name: 'Magic Letter Trace',
+      emoji: '✏️',
+      color: 'from-violet-400 to-indigo-500',
+      description: 'Trace letters A–Z with your finger (6 stages)',
+      learningGoal: 'Letter formation + fine motor skills',
+    },
+    {
       id: 'letter-painter',
       name: 'Letter Painter',
       emoji: '🎨',
@@ -107,6 +115,14 @@ export const GAMES_LIBRARY = {
   // AGE 3-4: Numbers, Patterns & Matching Games (4 + 3 new games)
   age_3_4: [
     // Original games
+    {
+      id: 'letter-tracing',
+      name: 'Magic Letter Trace',
+      emoji: '✏️',
+      color: 'from-violet-400 to-indigo-500',
+      description: 'Trace letters A–Z with your finger',
+      learningGoal: 'Letter formation + fine motor skills',
+    },
     {
       id: 'number-recognition',
       name: 'Number Parade',

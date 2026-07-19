@@ -1,100 +1,88 @@
-import { useState, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
+import PremiumLearningFrame from '../PremiumLearningFrame'
+import { useCanvasLoop, hitCircle } from '../../engine/canvas/useCanvasLoop'
+import { drawSky } from '../../engine/canvas/draw'
+import { spawnBurst, updateParticles, drawParticles } from '../../engine/canvas/particles'
+import type { Particle } from '../../engine/canvas/types'
 
-interface TapGameProps {
-  onBack: () => void
-}
-
-interface TapObject {
+interface TapObj {
   id: number
   x: number
   y: number
   emoji: string
-  scale: number
+  r: number
+  hue: number
 }
 
-const EMOJIS = ['🎈', '🌟', '🎀', '🎉', '🎁', '🌸', '🦋', '🍎', '🍌', '🍊']
+const EMOJIS = ['🎈', '🌟', '🎀', '🎉', '🎁', '🌸', '🦋', '🍎']
 
-export default function TapGame({ onBack }: TapGameProps) {
-  const [objects, setObjects] = useState<TapObject[]>([])
+export default function TapGame({ onBack }: { onBack: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const objectsRef = useRef<TapObj[]>([])
+  const particlesRef = useRef<Particle[]>([])
+  const idRef = useRef(0)
   const [score, setScore] = useState(0)
-  const [nextId, setNextId] = useState(0)
 
-  useEffect(() => {
-    // Create initial objects
-    const initialObjects: TapObject[] = Array.from({ length: 5 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 80 + 10,
-      y: Math.random() * 60 + 10,
+  const spawn = useCallback((w: number, h: number) => {
+    objectsRef.current.push({
+      id: idRef.current++,
+      x: 60 + Math.random() * (w - 120),
+      y: 60 + Math.random() * (h - 120),
       emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-      scale: 1,
-    }))
-    setObjects(initialObjects)
-    setNextId(5)
+      r: 36,
+      hue: Math.random() * 360,
+    })
+    if (objectsRef.current.length > 6) objectsRef.current.shift()
   }, [])
 
   useEffect(() => {
-    // Animate objects (floating effect)
-    const interval = setInterval(() => {
-      setObjects(prev =>
-        prev.map(obj => ({
-          ...obj,
-          y: obj.y + (Math.random() - 0.5) * 2,
-          x: obj.x + (Math.random() - 0.5) * 1,
-        }))
-      )
-    }, 100)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleTap = (id: number) => {
-    // Remove tapped object and create new one
-    setObjects(prev => {
-      const filtered = prev.filter(obj => obj.id !== id)
-      const newObject: TapObject = {
-        id: nextId,
-        x: Math.random() * 80 + 10,
-        y: Math.random() * 60 + 10,
-        emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-        scale: 1,
+    const t = setTimeout(() => {
+      const canvas = canvasRef.current
+      if (canvas?.parentElement) {
+        for (let i = 0; i < 4; i++) spawn(canvas.clientWidth, canvas.clientHeight)
       }
-      return [...filtered, newObject]
-    })
-    setScore(s => s + 1)
-    setNextId(n => n + 1)
+    }, 100)
+    return () => clearTimeout(t)
+  }, [spawn])
+
+  useCanvasLoop(canvasRef, (ctx, size, dt, time) => {
+    if (!size.width) return
+    drawSky(ctx, size.width, size.height, '#CE93D8', '#AB47BC', time)
+    updateParticles(particlesRef.current, dt)
+    for (const o of objectsRef.current) {
+      const bob = Math.sin(time * 2 + o.id) * 6
+      ctx.save()
+      ctx.shadowColor = 'rgba(0,0,0,0.2)'
+      ctx.shadowBlur = 12
+      ctx.font = `${o.r * 1.4}px serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(o.emoji, o.x, o.y + bob)
+      ctx.restore()
+    }
+    drawParticles(ctx, particlesRef.current)
+  })
+
+  const onTap = (cx: number, cy: number) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const x = cx - rect.left
+    const y = cy - rect.top
+    for (const o of [...objectsRef.current].reverse()) {
+      if (hitCircle(x, y, o.x, o.y, o.r)) {
+        objectsRef.current = objectsRef.current.filter((obj) => obj.id !== o.id)
+        spawnBurst(particlesRef.current, o.x, o.y, 10, o.hue, 4)
+        setScore((s) => s + 1)
+        spawn(rect.width, rect.height)
+        break
+      }
+    }
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex justify-between items-center p-4 md:p-6 bg-white/20 backdrop-blur-sm">
-        <button
-          onClick={onBack}
-          className="text-4xl md:text-5xl bg-white/80 rounded-full p-2 md:p-3 hover:bg-white transition-all active:scale-95"
-        >
-          ←
-        </button>
-        <div className="text-2xl md:text-4xl font-bold text-white">Score: {score}</div>
-        <div className="w-12 md:w-16"></div>
-      </div>
-
-      {/* Game Area */}
-      <div className="flex-1 relative">
-        {objects.map(obj => (
-          <button
-            key={obj.id}
-            onClick={() => handleTap(obj.id)}
-            className="absolute text-5xl md:text-7xl transform -translate-x-1/2 -translate-y-1/2 active:scale-110 transition-transform active:rotate-12 cursor-pointer focus:outline-none"
-            style={{
-              left: `${obj.x}%`,
-              top: `${obj.y}%`,
-              transform: `translate(-50%, -50%) scale(${obj.scale})`,
-            }}
-          >
-            {obj.emoji}
-          </button>
-        ))}
-      </div>
-    </div>
+    <PremiumLearningFrame title="Tap Game" emoji="👆" score={score} onBack={onBack} scene="sky">
+      <canvas ref={canvasRef} className="w-full h-full touch-none" onPointerDown={(e) => onTap(e.clientX, e.clientY)} />
+    </PremiumLearningFrame>
   )
 }
