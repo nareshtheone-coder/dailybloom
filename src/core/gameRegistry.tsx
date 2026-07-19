@@ -34,6 +34,7 @@ export const GAME_REGISTRY: Record<string, GameEntry> = {
   'color-match': { component: lazyGame(() => import('../components/games/ColorMatch')) },
   'shape-sort': { component: lazyGame(() => import('../components/games/ShapeSort')) },
   'sound-explorer': { component: lazyGame(() => import('../components/games/SoundExplorer')) },
+  'letter-tracing': { component: lazyGame(() => import('../components/games/LetterTracing')) },
   'letter-painter': { component: lazyGame(() => import('../components/games/LetterPainter')) },
   'letter-pop': { component: lazyGame(() => import('../components/games/LetterPop')) },
   'ais-for-puzzle': { component: lazyGame(() => import('../components/games/AisForPuzzle')) },
